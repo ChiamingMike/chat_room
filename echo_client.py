@@ -4,6 +4,10 @@ import threading
 
 
 class EchoClient:
+    """
+
+    """
+
     def __init__(self):
         self.host = socket.gethostbyname(socket.gethostname())
         self.port = 1433
@@ -33,7 +37,7 @@ class EchoClient:
     def speaking(self):
         while True:
             try:
-                msg = input("text:")
+                msg = input("→:")
                 if msg == "exit":
                     print("You leaved the room.")
                     exit()

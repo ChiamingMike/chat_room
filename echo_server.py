@@ -10,6 +10,11 @@ class EchoServer:
         self.server_addr = (self.host, self.port)
 
     def create_socket(self):
+        """
+        This funcion is for:1. Create socket.
+                            2. Bind the socket to address.
+                            3. Enable a server to accept connections.
+        """
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind(self.server_addr)
         self.server_socket.listen(2)
@@ -24,23 +29,12 @@ class EchoServer:
         print(conn_name, " join the room.")
         socket_list.append(conn)
         guest_list[conn] = conn_name
-        msg = "current members in chatroom are: %s" % guest_list.values()
+        msg = "current members in chatroom are: " + \
+            str(tuple(guest_list.values()))
         conn.sendall(msg.encode('utf-8'))
-
-    def close_connection(self):
-        pass
 
 
 if __name__ == "__main__":
-    # サーバ側
-    # サーバ側のプログラムは基本的に、
-
-    # socketでソケットを作成
-    # bindでアドレスとポート番号を指定
-    # listenでクライアントの接続を待つ
-    # acceptでクライアントの接続を受け付ける
-    # sendやrecvを使ってクライアントのデータの送受信を行う
-    # closeでソケットを閉じる
     socket_list = list()
     guest_list = dict()
     chat_room = EchoServer()
