@@ -11,9 +11,9 @@ class EchoServer:
 
     def create_socket(self):
         """
-        This funcion is for:1. Create socket.
-                            2. Bind the socket to address.
-                            3. Enable a server to accept connections.
+        This funcion is for:1. Creating socket.
+                            2. Binding the socket to address.
+                            3. Enabling a server to accept connections.
         """
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind(self.server_addr)
@@ -22,30 +22,38 @@ class EchoServer:
         return self.server_socket
 
     def create_connection(self, server_socket):
+        """
+        This function is for:4. Acceptinig a connection.
+                             5. Sending data to the socket.
+                             6. Receiving data from the socket.
+        """
         conn, addr = server_socket.accept()
-        print("Connection: ", addr, "---", datetime.datetime.now())
+        print("New connection: ", addr, "at",
+              datetime.datetime.now().strftime("%H:%M:%S"))
         conn.sendall(b"Please enter your nickname: ")
         conn_name = conn.recv(1024).decode()
-        print(conn_name, " join the room.")
+        print(conn_name, " joined the room.")
         socket_list.append(conn)
-        guest_list[conn] = conn_name
-        msg = "current members in chatroom are: " + \
-            str(tuple(guest_list.values()))
+        user_list[conn] = conn_name
+        msg = "Current members in chatroom are: " + \
+            str(tuple(user_list.values()))
         conn.sendall(msg.encode('utf-8'))
+        conn.sendall(b"Hint: Typing 'exit' can leave the room.")
 
 
 if __name__ == "__main__":
     socket_list = list()
-    guest_list = dict()
+    user_list = dict()
     chat_room = EchoServer()
     server_socket = chat_room.create_socket()
     socket_list.append(server_socket)
     print('Server is running normally.')
     while True:
-        rlist, wlist, elist = select.select(socket_list, [], [])
+        rlist, wlist, elist = select.select(socket_list, [], [], 60)
         if not rlist:
-            print('TIMEOUT!')
-            server_socket.shutdown()
+            # Automatically closing a socket file descriptor
+            # when no one is using chat room.
+            print('Timeout!')
             server_socket.close()
             break
         for socket_one in rlist:
@@ -53,9 +61,11 @@ if __name__ == "__main__":
                 chat_room.create_connection(server_socket)
             else:
                 try:
-                    print(guest_list[socket_one], " : ",
+                    print(user_list[socket_one], " : ",
                           socket_one.recv(1024).decode())
                 except Exception:
-                    print(guest_list[socket_one], " leaved the room.")
+                    # Notifying people that someone close the chat window.
+                    # Also remove user from the user_list.
+                    print(user_list[socket_one], " leaved the room.")
                     socket_list.remove(socket_one)
-                    del guest_list[socket_one]
+                    del user_list[socket_one]

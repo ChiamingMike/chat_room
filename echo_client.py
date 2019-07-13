@@ -4,16 +4,15 @@ import threading
 
 
 class EchoClient:
-    """
-
-    """
-
     def __init__(self):
         self.host = socket.gethostbyname(socket.gethostname())
         self.port = 1433
         self.server_addr = (self.host, self.port)
 
     def connect_socket(self):
+        """
+        This function is for:1. Connecting to a remote server at address.
+        """
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.client_socket.connect(self.server_addr)
@@ -23,6 +22,9 @@ class EchoClient:
             print("Failed to connect.")
 
     def listening(self):
+        """
+        This function is for:2. Receiving data from the socket.
+        """
         client_socket_list = [self.client_socket]
         while True:
             rlist, wlist, elist = select.select(client_socket_list, [], [])
@@ -35,15 +37,18 @@ class EchoClient:
                     exit()
 
     def speaking(self):
+        """
+        This function is for:3. Sending data to the socket.
+        """
         while True:
             try:
                 msg = input("→:")
                 if msg == "exit":
-                    print("You leaved the room.")
+                    print("Bye bye!")
                     exit()
                 self.client_socket.sendall(msg.encode("utf-8"))
             except Exception:
-                print("Failed to type")
+                print("Failed to type.")
                 exit()
 
 
